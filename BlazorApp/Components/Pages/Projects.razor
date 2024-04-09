@@ -6,6 +6,7 @@
 <PageTitle>Project</PageTitle>
 
 <h1>Projects</h1>
+<button @onclick="ButtonClick">Button</button>
 
 @if (projects == null)
 {
@@ -26,10 +27,10 @@ else
             @foreach (var project in projects)
             {
                 <tr>
-                    <td>@project.Id</td>
-                    <td>@project.Name</td>
-                    <td>@project.Type.Name</td>
-                    <td>@project.Description</td>
+                    <td>@project.id</td>
+                    <td>@project.name</td>
+                    <td>@project.type.Name</td>
+                    <td>@project.description</td>
                 </tr>
             }
         </tbody>
@@ -38,34 +39,38 @@ else
 
 @code {
     private Project[]? projects;
-    
+
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-
         FetchData();
     }
-
     private async Task FetchData()
     {
+        Logger.LogWarning("test");
         try
         {
             HttpClient httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("http://localhost:5005/api/Project");
+            HttpResponseMessage response = await httpClient.GetAsync("http://localhost:5005/api/Project");
             if (response.IsSuccessStatusCode)
             {
                 projects = await response.Content.ReadFromJsonAsync<Project[]>();
+                Logger.LogWarning("Succesful api reguest!");
             }
             else
             {
-                Console.WriteLine("API request unsuccesful");
+                Logger.LogWarning("Unsuccesful api reguest!");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("API request unsuccesful. " + ex.Message);
+            Console.WriteLine(ex.Message);
+            Logger.LogWarning("api failed: "+ex.Message);
         }
     }
 
+
+    private void ButtonClick()
+    {
+        Logger.LogWarning("Someone has clicked me!");
+    }
 }
