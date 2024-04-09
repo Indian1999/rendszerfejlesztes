@@ -8,7 +8,7 @@
 <h1>Projects</h1>
 <button @onclick="ButtonClick">Button</button>
 
-@if (projects == null)
+@if (project == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -24,36 +24,28 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var project in projects)
-            {
                 <tr>
                     <td>@project.id</td>
                     <td>@project.name</td>
-                    <td>@project.type.Name</td>
+                    @* <td>@project.type.name</td> *@
                     <td>@project.description</td>
                 </tr>
-            }
         </tbody>
     </table>
 }
 
 @code {
     private Project[]? projects;
-
+    private Project project;
     protected override async Task OnInitializedAsync()
     {
-        FetchData();
-    }
-    private async Task FetchData()
-    {
-        Logger.LogWarning("test");
         try
         {
             HttpClient httpClient = new HttpClient();
-            HttpResponseMessage response = await httpClient.GetAsync("http://localhost:5005/api/Project");
+            HttpResponseMessage response = await httpClient.GetAsync("http://localhost:5005/api/Project/1");
             if (response.IsSuccessStatusCode)
             {
-                projects = await response.Content.ReadFromJsonAsync<Project[]>();
+                project = await response.Content.ReadFromJsonAsync<Project>();
                 Logger.LogWarning("Succesful api reguest!");
             }
             else
@@ -64,7 +56,7 @@ else
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            Logger.LogWarning("api failed: "+ex.Message);
+            Logger.LogWarning("api failed: " + ex.Message);
         }
     }
 

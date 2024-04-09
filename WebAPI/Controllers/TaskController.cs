@@ -20,9 +20,9 @@ namespace WebAPI.Controllers
         {
             return Enumerable.Range(1, 5).Select(index => new ClassLibrary.Model.Task
             {
-                Deadline = new DateTime(2024,4,3),
-                Name = "Task" + index.ToString(),
-                Description = "Description"
+                deadline = new DateTime(2024,4,3),
+                name = "Task" + index.ToString(),
+                description = "Description"
             })
             .ToArray();
         }
