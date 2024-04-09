@@ -1,5 +1,6 @@
 ﻿@page "/projects"
 @using ClassLibrary.Models
+@using Newtonsoft.Json
 @inject ILogger<Projects> Logger
 @attribute [StreamRendering]
 
@@ -8,7 +9,7 @@
 <h1>Projects</h1>
 <button @onclick="ButtonClick">Button</button>
 
-@if (project == null)
+@if (projects == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -24,28 +25,34 @@ else
             </tr>
         </thead>
         <tbody>
+            @foreach (var project in projects)
+            {
                 <tr>
                     <td>@project.id</td>
                     <td>@project.name</td>
-                    @* <td>@project.type.name</td> *@
+                    <td>@project.type.name</td>
                     <td>@project.description</td>
                 </tr>
+            }
         </tbody>
     </table>
 }
 
 @code {
-    private Project[]? projects;
-    private Project project;
+    private List<Project>? projects;
+    //private Project project;
     protected override async Task OnInitializedAsync()
     {
+        var settings = new JsonSerializerSettings();
         try
         {
             HttpClient httpClient = new HttpClient();
-            HttpResponseMessage response = await httpClient.GetAsync("http://localhost:5005/api/Project/1");
+            HttpResponseMessage response = await httpClient.GetAsync("http://localhost:5005/api/Project");
+            var result = await response.Content.ReadAsStringAsync();
+            Logger.LogWarning(result);
             if (response.IsSuccessStatusCode)
             {
-                project = await response.Content.ReadFromJsonAsync<Project>();
+                projects = JsonConvert.DeserializeObject<List<Project>>(result, settings);
                 Logger.LogWarning("Succesful api reguest!");
             }
             else
@@ -55,7 +62,6 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
             Logger.LogWarning("api failed: " + ex.Message);
         }
     }
@@ -65,4 +71,6 @@ else
     {
         Logger.LogWarning("Someone has clicked me!");
     }
+
+
 }
