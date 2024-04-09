@@ -1,0 +1,71 @@
+﻿@page "/projects"
+@using ClassLibrary.Models
+@inject ILogger<Projects> Logger
+@attribute [StreamRendering]
+
+<PageTitle>Project</PageTitle>
+
+<h1>Projects</h1>
+
+@if (projects == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Desctiption</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in projects)
+            {
+                <tr>
+                    <td>@project.Id</td>
+                    <td>@project.Name</td>
+                    <td>@project.Type.Name</td>
+                    <td>@project.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Project[]? projects;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        FetchData();
+    }
+
+    private async Task FetchData()
+    {
+        try
+        {
+            HttpClient httpClient = new HttpClient();
+            var response = await httpClient.GetAsync("http://localhost:5005/api/Project");
+            if (response.IsSuccessStatusCode)
+            {
+                projects = await response.Content.ReadFromJsonAsync<Project[]>();
+            }
+            else
+            {
+                Console.WriteLine("API request unsuccesful");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("API request unsuccesful. " + ex.Message);
+        }
+    }
+
+}
